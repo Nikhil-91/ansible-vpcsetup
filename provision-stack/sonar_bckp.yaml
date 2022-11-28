@@ -1,0 +1,11 @@
+---
+- name: backup sonar
+  hosts: sonargrp
+  gather_facts: no
+  tasks:
+    - name: backup sonar
+      shell: |
+            systemctl stop sonarqube 
+            cd /opt/
+            tar -czvf sonar.tar.gz sonar
+      

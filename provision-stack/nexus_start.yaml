@@ -1,0 +1,8 @@
+---
+- name: push nexus
+  hosts: centosgrp
+  gather_facts: no
+  tasks:
+    - name: stop nexus
+      shell: |
+            systemctl start nexus.service 

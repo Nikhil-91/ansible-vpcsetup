@@ -1,0 +1,8 @@
+---
+- name: push sonar
+  hosts: sonargrp
+  gather_facts: no
+  tasks:
+    - name: stop sonar
+      shell: |
+            systemctl start sonarqube

@@ -1,0 +1,10 @@
+---
+- name: push backup data
+  hosts: control
+  gather_facts: no
+  tasks:
+    - name: copy backup files
+      shell: |
+          sudo scp -i loginkey_vpro.pem /home/ansible_cicd/provision-stack/backup/jenkins.tar.gz ubuntu@jenkins:/var/lib/
+          sudo scp -i loginkey_vpro.pem /home/ansible_cicd/provision-stack/backup/nexus.tar.gz  ec2-user@nexus:/opt/
+          sudo scp -i loginkey_vpro.pem /home/ansible_cicd/provision-stack/backup/sonar.tar.gz ubuntu@sonar:/opt/ 

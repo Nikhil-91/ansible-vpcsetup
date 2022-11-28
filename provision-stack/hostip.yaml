@@ -1,0 +1,13 @@
+- name: Set host to ip mapping in /etc/hosts file of all the instances in the stack
+  hosts: all
+  tasks:
+    - name: Import VPC setup Variable
+      include_vars: group_vars/hostsip
+
+    - name: Update hosts file for all the hosts
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          {{jenkins_ip}} jenkins
+          {{sonar_ip}} sonar
+          {{nexus_ip}} nexus

@@ -1,0 +1,13 @@
+---
+- name: backup jenkins
+  hosts: jenkinsgrp
+  gather_facts: no
+  tasks:
+    - name: backup jenkins
+      shell: |
+            systemctl stop jenkins.service
+            rm -rf /var/lib/jenkins/.m2/repository
+            rm -rf /var/lib/jenkins/workspace 
+            cd /var/lib/
+            tar -czvf jenkins.tar.gz jenkins
+      

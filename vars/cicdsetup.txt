@@ -1,0 +1,9 @@
+region: us-east-1
+instance_type: t2.medium
+jenkins_ami: ami-0ee23bfc74a881de5
+sonar_ami: ami-0ee23bfc74a881de5
+nexus_ami: ami-0b0dcb5067f052a63
+my_ip: 49.37.157.17/32
+aws_access_key: AKIAYHOOFOQOIFTSLGMO
+aws_secret_key: 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
+vm_ip: 192.168.56.13/32

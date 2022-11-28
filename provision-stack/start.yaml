@@ -1,0 +1,8 @@
+- name: Jenkins Stop
+  import_playbook: jenkins_start.yaml
+
+- name: Nexus stop
+  import_playbook: nexus_start.yaml
+
+- name: Sonar stop
+  import_playbook: sonar_start.yaml

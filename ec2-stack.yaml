@@ -1,0 +1,172 @@
+---
+- name: Setup CICD Stack
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Import vprofile setup Variable
+      include_vars: vars/cicdsetup.txt
+
+    - name: Create vprofile ec2 key
+      ec2_key:
+        name: vprokey
+        region: "{{region}}"
+        aws_access_key: '{{aws_access_key}}'
+        aws_secret_key: '{{aws_secret_key}}'
+      register: vprokey_out
+
+    - name: Save private key into file loginkey_vpro.pem
+      copy:
+        content: "{{vprokey_out.key.private_key}}"
+        dest: "./loginkey_vpro.pem"
+        mode: 0600
+      when: vprokey_out.changed
+
+    - name: Create Securiry Group for Vprofile Stack
+      ec2_group:
+        name: cicd-sg
+        description: Allow port 22 from everywhere and all port within sg
+        region: "{{region}}"
+        aws_access_key: '{{aws_access_key}}'
+        aws_secret_key: '{{aws_secret_key}}'
+        purge_rules: no
+        rules:
+          - proto: all
+            cidr_ip: "{{my_ip}}"
+
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{my_ip}}"
+      register: cicd_out
+
+    - name: Update Securiry Group with its own sg id
+      ec2_group:
+        name: cicd-sg
+        description: Allow port 22 from everywhere and all port within sg
+        region: "{{region}}"
+        aws_access_key: '{{aws_access_key}}'
+        aws_secret_key: '{{aws_secret_key}}'
+        purge_rules: no
+        rules:
+          - proto: all
+            group_id: "{{cicd_out.group_id}}"
+
+    - name: Creating jenkins server
+      ec2:
+        key_name: vprokey
+        region: "{{region}}"
+        aws_access_key: '{{aws_access_key}}'
+        aws_secret_key: '{{aws_secret_key}}'
+        instance_type: "{{instance_type}}"
+        image: "{{jenkins_ami}}"
+        wait: yes
+        wait_timeout: 300
+        instance_tags:
+          Name: "jenkins"
+          Project: Vprofile
+          Owner: DevOps Team
+        exact_count: 1
+        count_tag:
+          Name: "jenkins"
+          Project: Vprofile
+          Owner: DevOps Team
+        group_id: "{{cicd_out.group_id}}"
+      register: jenkins_out
+
+    - name: Creating sonar server
+      ec2:
+        key_name: vprokey
+        region: "{{region}}"
+        aws_access_key: '{{aws_access_key}}'
+        aws_secret_key: '{{aws_secret_key}}'
+        instance_type: "{{instance_type}}"
+        image: "{{sonar_ami}}"
+        wait: yes
+        wait_timeout: 300
+        instance_tags:
+          Name: "sonar"
+          Project: Vprofile
+          Owner: DevOps Team
+        exact_count: 1
+        count_tag:
+          Name: "sonar"
+          Project: Vprofile
+          Owner: DevOps Team
+        group_id: "{{cicd_out.group_id}}"
+      register: sonar_out
+
+    - name: Creating nexus server
+      ec2:
+        key_name: vprokey
+        region: "{{region}}"
+        aws_access_key: '{{aws_access_key}}'
+        aws_secret_key: '{{aws_secret_key}}'
+        instance_type: "{{instance_type}}"
+        image: "{{nexus_ami}}"
+        wait: yes
+        wait_timeout: 300
+        instance_tags:
+          Name: "nexus"
+          Project: Vprofile
+          Owner: DevOps Team
+        exact_count: 1
+        count_tag:
+          Name: "nexus"
+          Project: Vprofile
+          Owner: DevOps Team
+        group_id: "{{cicd_out.group_id}}"
+      register: nexus_out
+
+    - name: Insert/Update Hosts IP & Name in file provision-stack/group_vars/hostsip
+      blockinfile:
+        path: provision-stack/group_vars/hostsip
+        block: |
+          jenkins_ip: {{ jenkins_out.tagged_instances[0].public_ip }}
+          sonar_ip: {{ sonar_out.tagged_instances[0].public_ip }}
+          nexus_ip: {{ nexus_out.tagged_instances[0].public_ip }}
+
+    - name: Copy login key to provision_stack directory
+      copy:
+        src: loginkey_vpro.pem
+        dest: provision-stack/loginkey_vpro.pem
+        mode: '0400'
+
+    - name: Insert/Update Inventory file provision-stack/inventory-vpro
+      blockinfile:
+        path: provision-stack/inventory-vpro
+        block: |
+          jenkins ansible_host={{ jenkins_out.tagged_instances[0].public_ip }}
+          sonar ansible_host={{ sonar_out.tagged_instances[0].public_ip }}
+          nexus ansible_host={{ nexus_out.tagged_instances[0].public_ip }}
+          cntl ansible_host=127.0.0.1 ansible_connection=local
+
+          [jenkinsgrp]
+          jenkins
+
+          [sonargrp]
+          sonar
+
+          [centosgrp]
+          nexus
+
+          [control]
+          cntl
+
+          [jenkinsgrp:vars]
+          ansible_user=ubuntu
+          ansible_ssh_private_key_file=loginkey_vpro.pem
+          #ansible_python_interpreter=/usr/bin/python3
+
+          [sonargrp:vars]
+          ansible_user=ubuntu
+          ansible_ssh_private_key_file=loginkey_vpro.pem
+          #ansible_python_interpreter=/usr/bin/python3
+
+          [centosgrp:vars]
+          ansible_user=ec2-user
+          ansible_ssh_private_key_file=loginkey_vpro.pem
+          #ansible_python_interpreter=/usr/bin/python3

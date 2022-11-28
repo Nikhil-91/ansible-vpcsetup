@@ -1,0 +1,11 @@
+---
+- name: backup nexus
+  hosts: centosgrp
+  gather_facts: no
+  tasks:
+    - name: backup nexus
+      shell: |
+            systemctl stop nexus.service 
+            cd /opt/
+            tar -czvf nexus.tar.gz nexus 
+      

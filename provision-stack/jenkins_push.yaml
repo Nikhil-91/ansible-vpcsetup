@@ -1,0 +1,17 @@
+---
+- name: push jenkins
+  hosts: jenkinsgrp
+  gather_facts: no
+  tasks:
+    - name: stop jenkins
+      shell: |
+            systemctl stop jenkins.service 
+    - name: copy file to remote
+      copy:
+         src: /home/ansible_cicd/provision-stack/backup/jenkins.tar.gz
+         dest: /var/lib
+    - name: extract files and restart jenkins
+      shell: |
+           cd /var/lib
+           sudo tar -zxvf jenkins.tar.gz
+           systemctl start jenkins.service

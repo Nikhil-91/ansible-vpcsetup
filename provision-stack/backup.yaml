@@ -1,0 +1,8 @@
+- name: Jenkins backup Configuration
+  import_playbook: jenkins_bckp.yaml
+
+- name: Nexus backup Configuration
+  import_playbook: nexus_bckp.yaml
+
+- name: Sonar backup Configuration
+  import_playbook: sonar_bckp.yaml

@@ -1,0 +1,8 @@
+- name: Jenkins Configuration push
+  import_playbook: jenkins_push.yaml
+
+- name: Nexus Configuration push
+  import_playbook: nexus_push.yaml
+
+- name: Sonar Configuration push
+  import_playbook: sonar_push.yaml

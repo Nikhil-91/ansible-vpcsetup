@@ -1,0 +1,17 @@
+---
+- name: push sonar
+  hosts: sonargrp
+  gather_facts: no
+  tasks:
+    - name: stop sonar
+      shell: |
+            systemctl stop sonarqube
+    - name: copy sonar tar to remote
+      copy:
+         src: /home/ansible_cicd/provision-stack/backup/sonar.tar.gz
+         dest: /opt
+    - name: extract files and restart sonarqube
+      shell: |
+           cd /opt/
+           sudo tar -zxvf sonar.tar.gz
+           systemctl start sonarqube

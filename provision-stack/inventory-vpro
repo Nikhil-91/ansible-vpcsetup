@@ -1,0 +1,33 @@
+# BEGIN ANSIBLE MANAGED BLOCK
+jenkins ansible_host=44.198.160.68
+sonar ansible_host=44.204.112.8
+nexus ansible_host=44.203.19.38
+cntl ansible_host=127.0.0.1 ansible_connection=local
+
+[jenkinsgrp]
+jenkins
+
+[sonargrp]
+sonar
+
+[centosgrp]
+nexus
+
+[control]
+cntl
+
+[jenkinsgrp:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=loginkey_vpro.pem
+#ansible_python_interpreter=/usr/bin/python3
+
+[sonargrp:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=loginkey_vpro.pem
+#ansible_python_interpreter=/usr/bin/python3
+
+[centosgrp:vars]
+ansible_user=ec2-user
+ansible_ssh_private_key_file=loginkey_vpro.pem
+#ansible_python_interpreter=/usr/bin/python3
+# END ANSIBLE MANAGED BLOCK

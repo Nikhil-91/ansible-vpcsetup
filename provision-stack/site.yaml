@@ -1,0 +1,11 @@
+- name: hostip Configuration
+  import_playbook: hostip.yaml
+
+- name: Jenkins Configuration
+  import_playbook: jenkins.yaml
+
+- name: Nexus Configuration
+  import_playbook: nexus.yaml
+
+- name: Sonar Configuration
+  import_playbook: sonar.yaml

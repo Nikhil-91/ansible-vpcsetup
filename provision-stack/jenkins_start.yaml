@@ -1,0 +1,8 @@
+---
+- name: push jenkins
+  hosts: jenkinsgrp
+  gather_facts: no
+  tasks:
+    - name: stop jenkins
+      shell: |
+            systemctl start jenkins.service 

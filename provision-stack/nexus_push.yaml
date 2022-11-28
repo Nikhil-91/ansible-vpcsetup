@@ -1,0 +1,17 @@
+---
+- name: push nexus
+  hosts: centosgrp
+  gather_facts: no
+  tasks:
+    - name: stop nexus
+      shell: |
+            systemctl stop nexus.service 
+    - name: copy file to remote
+      copy:
+         src: /home/ansible_cicd/provision-stack/backup/nexus.tar.gz
+         dest: /opt
+    - name: extract files and restart nexus
+      shell: |
+           cd /opt
+           sudo tar -zxvf nexus.tar.gz
+           systemctl start nexus.service
